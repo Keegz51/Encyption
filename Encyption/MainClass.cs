@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Office.Interop.Excel;
@@ -14,15 +15,18 @@ namespace Encryption
 
             //Encryption
 
-            Dictionary<string, string> passwords = new Dictionary<string, string>();
-
-            Dictionary<string, string> OutPasswords = new Dictionary<string, string>();
-
             //Read Excel File
             Console.WriteLine("Enter file path?");
             string path = Console.ReadLine();
 
-            Dictionary<string, string> InPasswords = ReadExcel(path);
+            //Read the excel file into dictionary
+            Dictionary<string, passData> InDict = ReadExceltoObject(path);
+
+            //Encrypted Password Dictionary
+            Dictionary<string, passData> OutDict = new Dictionary<string, passData>();
+
+            //Decrypted Password Dictionary
+            Dictionary<string, passData> DecryptedDict = new Dictionary<string, passData>();
 
             //Request for Encryption/Decryption Key
             Console.WriteLine("Please enter key input1");
@@ -30,41 +34,61 @@ namespace Encryption
 
             Console.WriteLine("Please enter key input2");
             int keyinput2 = Int32.Parse(Console.ReadLine());
+            //TODO : ASCII Wrapping
 
             //Encrypt
-            foreach (var p in InPasswords)
-            {
-                string encryptedPassword = encryptPassword(p.Value, keyinput1, keyinput2);
-
-                passwords.Add(p.Key, encryptedPassword);
-            }
+            Encrypt(InDict,OutDict,keyinput1,keyinput2);
 
             //Decrypt
-            foreach (var p in passwords)
-            {
-                string decryptedPassword = decrypt(p.Value, keyinput1, keyinput2);
+            Decrypt(DecryptedDict,OutDict,keyinput1,keyinput2);
 
-                OutPasswords.Add(p.Key, decryptedPassword);
+        }
+
+        public static void Encrypt(Dictionary<string,passData> InDict, Dictionary<string, passData> OutDict, int key1, int key2)
+        {
+            foreach (var p in InDict)
+            {
+                string encryptedPassword = encryptPassword(p.Value.password, key1, key2);
+
+                OutDict.Add(p.Key, new passData()
+                {
+                    username = p.Value.username,
+                    password = encryptedPassword
+                });
             }
 
         }
 
-        public static Dictionary<string,string> ReadExcel(string path)
+        public static void Decrypt(Dictionary<string, passData> DecryptedDict, Dictionary<string, passData> OutDict, int key1, int key2)
+        {
+            foreach (var p in OutDict)
+            {
+                string decryptedPassword = decrypt(p.Value.password, key1, key2);
+
+                DecryptedDict.Add(p.Key, new passData()
+                {
+                    username = p.Value.username,
+                    password = decryptedPassword
+                });
+            }
+        }
+
+        public static Dictionary<string, string> ReadExcel(string path)
         {
             Dictionary<string, string> passwords = new Dictionary<string, string>();
 
             //Loop through Excel file and add username and passwords to dictionary.
 
             _Application excel = new Microsoft.Office.Interop.Excel.Application();
-            Workbook wb=excel.Workbooks.Open(path);
-            Worksheet ws=wb.Worksheets[1];
+            Workbook wb = excel.Workbooks.Open(path);
+            Worksheet ws = wb.Worksheets[1];
 
             string u = "", p = "";
             int i = 1;
 
 
 
-            while (ws.Cells[i,1].Value!=null)
+            while (ws.Cells[i, 1].Value != null)
             {
                 u = ws.Cells[i, 1].Value;
                 p = ws.Cells[i, 2].Value;
@@ -76,7 +100,42 @@ namespace Encryption
 
             return passwords;
         }
-    public static string encryptPassword(string password,int key1,int key2)
+
+        public static Dictionary<string, passData> ReadExceltoObject(string path)
+        {
+            Dictionary<string, passData> passwords = new Dictionary<string, passData>();
+
+            //Loop through Excel file and add username and passwords to dictionary.
+
+            _Application excel = new Microsoft.Office.Interop.Excel.Application();
+            Workbook wb = excel.Workbooks.Open(path);
+            Worksheet ws = wb.Worksheets[1];
+
+            string n="",u = "", p = "";
+            int i = 1;
+
+
+
+            while (ws.Cells[i, 1].Value != null)
+            {
+                n = ws.Cells[i, 1].Value;
+                u = ws.Cells[i, 2].Value;
+                p = ws.Cells[i, 3].Value;
+
+                i++;
+
+                passData pD = new passData();
+                
+                passwords.Add(n, new passData()
+                {
+                    username=u,
+                    password=p
+                });
+            }
+
+            return passwords;
+        }
+        public static string encryptPassword(string password, int key1, int key2)
         {
 
             string encryptedPassword = "";
@@ -128,5 +187,17 @@ namespace Encryption
             }
             return decriptedPassword;
         }
+
+        
+
     }
+    public class passData
+    {
+        public string username { get; set; }
+
+        public string password { get; set; }
+    }
+
 }
+
+
