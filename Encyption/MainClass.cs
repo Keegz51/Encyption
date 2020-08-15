@@ -19,6 +19,8 @@ namespace Encryption
 
             switch (action)
             {
+
+                #region Encrypt
                 case "Encrypt":
                     //Encrypt
                     //Read Excel File
@@ -43,7 +45,7 @@ namespace Encryption
 
                     Console.WriteLine("Please enter the output filename");
                     string outputFileName = pathE.Substring(0, pathE.LastIndexOf(@"\") + 1) + Console.ReadLine() + ".xlsx";
-
+                    
                     while (File.Exists(outputFileName))
                     {
                         Console.WriteLine("File Already exists please enter a diferrent file name");
@@ -52,7 +54,9 @@ namespace Encryption
 
                     WriteObjectToExcel(OutDict, outputFileName);
                     break;
+                #endregion
 
+                #region Decrypt
                 case "Decrypt":
                     //Decrypt
                     //Read Excel File
@@ -84,6 +88,7 @@ namespace Encryption
 
                     WriteObjectToExcel(DecryptedDict, outputFileNameD);
                     break;
+                    #endregion
 
             }
         }

@@ -112,8 +112,6 @@ namespace Encyption
              Workbook wb= excel.Workbooks.Add(Type.Missing);
             //Workbook wb = excel.;
             Worksheet ws = wb.Worksheets[1];
-
-            string n = "", u = "", p = "";
             int i = 1;
 
             foreach (var d in DecryptedDict)
@@ -179,9 +177,6 @@ namespace Encyption
             string pass1 = encryptedPassword.Substring(0, splitter);
             string pass2 = encryptedPassword.Substring(splitter);
 
-            //LmT   qg
-            Console.WriteLine(encryptedPassword);
-            Console.WriteLine(pass1 + " " + pass2);
             int i1 = 0;
             int i2 = 0;
 
